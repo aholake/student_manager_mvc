@@ -1,5 +1,6 @@
 package com.tanloc.model;
 
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -18,6 +19,9 @@ public class StudentDAO {
 	// JDBC drivername and database URL
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 	static final String DB_URL = "jdbc:mysql://localhost:3306/student";
+
+	public static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
+	public static final Charset UTF_8 = Charset.forName("UTF-8");
 
 	// Database credentials
 	static final String USER = "root";
@@ -68,7 +72,7 @@ public class StudentDAO {
 
 	public List<Student> searchStudent(String keyword) {
 		List<Student> list = new ArrayList<>();
-		String sql = "SELECT * FROM student WHERE CONCAT(first_name,' ',last_name) LIKE '%" + keyword + "%'";
+		String sql = "SELECT * FROM student WHERE CONCAT(last_name,' ',first_name) LIKE '%" + convertToUTF8(keyword) + "%'";
 
 		openConnection();
 		try {
@@ -142,8 +146,8 @@ public class StudentDAO {
 		String sql = "INSERT INTO student(first_name, last_name, birth_date) VALUES(?,?,?)";
 		try {
 			PreparedStatement preparedStatement = connection.prepareStatement(sql);
-			preparedStatement.setString(1, student.getFirstName());
-			preparedStatement.setString(2, student.getLastName());
+			preparedStatement.setString(1, convertToUTF8(student.getFirstName()));
+			preparedStatement.setString(2, convertToUTF8(student.getLastName()));
 			preparedStatement.setDate(3, student.getBirthDate());
 
 			preparedStatement.execute();
@@ -176,9 +180,14 @@ public class StudentDAO {
 		}
 	}
 
-	public static void main(String[] args) throws ParseException {
-		System.out.println(new StudentDAO().searchStudent("huy").size());
-		;
+	public String convertToUTF8(String org) {
+		byte[] foo = org.getBytes(ISO_8859_1);
+		return new String(foo, UTF_8);
+	}
 
+	public static void main(String[] args) throws ParseException {
+		double a = (double) 10 / 3;
+		System.out.println(a);
+		System.out.println((int) Math.ceil((double) 10 / 3));
 	}
 }

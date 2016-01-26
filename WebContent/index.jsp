@@ -9,6 +9,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Insert title here</title>
+<meta charset="utf-8">
+
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet"
 	href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
@@ -39,6 +41,15 @@
 		students = studentDao.searchStudent(searchKey);
 	} else {
 		students = studentDao.getStudentList();
+	}
+
+	int pageNum = (int) Math.ceil((double) students.size() / 5);
+
+	int currentPage;
+	if (request.getParameter("page") != null && request.getParameter("page") != "") {
+		currentPage = Integer.parseInt(request.getParameter("page"));
+	} else {
+		currentPage = 1;
 	}
 %>
 <body>
@@ -71,7 +82,15 @@
 			<tbody>
 				<%
 					if (students.size() > 0) {
-						for (Student student : students) {
+						int startIndex = currentPage * 5 - 5;
+						int endIndex;
+						if (currentPage < pageNum) {
+							endIndex = currentPage * 5;
+						} else {
+							endIndex = students.size();
+						}
+						for (int i = startIndex; i < endIndex; i++) {
+							Student student = students.get(i);
 				%>
 				<tr>
 					<td><%=student.getId()%></td>
@@ -91,11 +110,13 @@
 			</tbody>
 		</table>
 		<ul class="pagination">
-			<li><a href="#">1</a></li>
-			<li class="active"><a href="#">2</a></li>
-			<li><a href="#">3</a></li>
-			<li><a href="#">4</a></li>
-			<li><a href="#">5</a></li>
+			<%
+				for (int i = 1; i <= pageNum; i++) {
+			%>
+			<li><a href="home?page=<%=i%>"><%=i%></a></li>
+			<%
+				}
+			%>
 		</ul>
 		<div class="row">
 			<form class="form col-md-6 col-md-offset-3" action="addStudent"
